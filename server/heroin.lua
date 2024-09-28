@@ -22,46 +22,63 @@ end
 
 RegisterServerEvent('md-drugs:server:removecleaningkitheroin', function(data)
 local src = source
-	if RemoveItem(src,"cleaningkit", 1) then
+local Player = QBCore.Functions.GetPlayer(src)
+
+	if RemoveItem("cleaningkit", 1) then
+		Notifys("Cleaned It Perfectly", "success")
 		TriggerClientEvent("md-drugs:client:deletedirtyheroin", src, data)
-		Log(GetName(src) .. ' Wiped Down Their Heroin Lab Kit!' , 'heroin')
+		Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Wiped Down Their Heroin Lab Kit!' , 'heroin')
 	else
-		Notifys(src, "You cant clean it with spit alone", "error")
+		Notifys("You cant clean it with spit alone", "error")
 	end
 end)
 
 
 RegisterServerEvent("heroin:pickupCane", function(loc)
-	if CheckDist(source, Config.PoppyPlants[loc].location) then return end
+	local playerPed = GetPlayerPed(source)
+	if CheckDist(source, playerPed, Config.PoppyPlants[loc].location) then return end
     if not Config.PoppyPlants[loc].taken then
         Config.PoppyPlants[loc].taken = true
         GlobalState.PoppyPlants = Config.PoppyPlants
         TriggerClientEvent("heroin:removeCane", -1, loc)
         heroinCooldown(loc)
-        AddItem(source, 'poppyresin', 1)
-        Log(GetName(source) .. ' Picked A Poppies With a distance of ' .. dist(source, Config.PoppyPlants[loc].location) .. ' vectors', 'heroin')
+        local Player = QBCore.Functions.GetPlayer(source)
+        AddItem('poppyresin', 1)
+        Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Picked A Poppies With a distance of ' .. dist(source, playerPed, Config.PoppyPlants[loc].location) .. ' vectors', 'heroin')
+    
     end
 end)
 
 RegisterServerEvent('md-drugs:server:dryplant', function(num)
 	local src = source
-	if CheckDist(source, Config.dryplant[num]['loc']) then return end
-	if not Itemcheck(source, 'poppyresin', 1) then return end
+    local Player = QBCore.Functions.GetPlayer(src)
+	local playerPed = GetPlayerPed(source)
+	if CheckDist(source, playerPed, Config.dryplant[num]['loc']) then return end
+	if not Itemcheck(Player, 'poppyresin', 1, 'true') then return end
 	if Config.TierSystem then
-		local heroin = getRep(src, 'heroin')
+		local heroin = Player.PlayerData.metadata['heroin']
 		if heroin <= Config.Tier1 then
-			if not GetRecipe(src, 'heroin', 'dryheroin', 'tier1') then return end
-			Log(GetName(src) ..' Made Heroin Powder With a distance of ' .. dist(source, Config.dryplant[num]['loc']) .. ' vectors', 'heroin')
+			if RemoveItem("poppyresin", 1) then
+				AddItem("heroin", 1)
+				Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Made Heroin Powder With a distance of ' .. dist(source, playerPed, Config.dryplant[num]['loc']) .. ' vectors', 'heroin')
+			end
 		elseif heroin >= Config.Tier1 and heroin <= Config.Tier2 then
-			if not GetRecipe(src, 'heroin', 'dryheroin', 'tier2') then return end
-			Log(GetName(src) ..' Made Heroin Powder Tier 2 With a distance of ' .. dist(source, Config.dryplant[num]['loc']) .. ' vectors', 'heroin')
+			if RemoveItem("poppyresin", 1) then
+				AddItem("heroinstagetwo", 1)
+				Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Made Heroin Powder Tier 2 With a distance of ' .. dist(source, playerPed, Config.dryplant[num]['loc']) .. ' vectors', 'heroin')
+			end
 		else
-			if not GetRecipe(src, 'heroin', 'dryheroin', 'tier3') then return end
-			Log(GetName(src) ..' Made Heroin Powder  Tier 3 With a distance of ' .. dist(source, Config.dryplant[num]['loc']) .. ' vectors', 'heroin')
+			if RemoveItem("poppyresin", 1) then
+				AddItem("heroinstagethree", 1)
+				Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Made Heroin Powder  Tier 3 With a distance of ' .. dist(source, playerPed, Config.dryplant[num]['loc']) .. ' vectors', 'heroin')
+			end
 		end
 	else
-		if not GetRecipe(src, 'heroin', 'dryheroin', 'tier1') then return end
-		Log(GetName(src) ..' Made Heroin Powder With a distance of ' .. dist(source, Config.dryplant[num]['loc']) .. ' vectors', 'heroin')
+		if RemoveItem("poppyresin", 1) then
+			AddItem("heroin", 1)
+			Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Made Heroin Powder With a distance of ' .. dist(source, playerPed, Config.dryplant[num]['loc']) .. ' vectors', 'heroin')
+			
+		end
 	end
 end)
 
@@ -69,58 +86,78 @@ end)
 RegisterServerEvent('md-drugs:server:cutheroin', function(num)
 	local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-	if CheckDist(source, Config.cutheroinone[num]['loc']) then return end
-	if not Itemcheck(src, 'bakingsoda', 1) then return end
+	local playerPed = GetPlayerPed(source)
+	if CheckDist(source, playerPed, Config.cutheroinone[num]['loc']) then return end
+	if not Itemcheck(Player, 'bakingsoda', 1, 'true') then return end
 	if Config.TierSystem then
 		local rawh = Player.Functions.GetItemByName('heroin')
 		local rawh2 = Player.Functions.GetItemByName('heroinstagetwo')
 		local rawh3 = Player.Functions.GetItemByName('heroinstagethree')
 		if rawh then
-			if not GetRecipe(src, 'heroin', 'cutheroin', 'tier1') then return end
-			Log(GetName(src) ..' Cut Heroin With a distance of ' .. dist(source, Config.cutheroinone[num]['loc']) .. ' vectors', 'heroin')
+			RemoveItem('heroin', 1 ) 
+			RemoveItem('bakingsoda', 1 ) 
+			AddItem('heroincut',1) 
+			Notifys(Lang.Heroin.cutheroin, "success")
+			Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Cut Heroin With a distance of ' .. dist(source, playerPed, Config.cutheroinone[num]['loc']) .. ' vectors', 'heroin')
 		elseif rawh2 then
-			if not GetRecipe(src, 'heroin', 'cutheroin', 'tier2') then return end
-			Log(GetName(src) ..' Cut Heroin Tier 2 With a distance of ' .. dist(source, Config.cutheroinone[num]['loc']) .. ' vectors', 'heroin')
+			RemoveItem('heroinstagetwo', 1 ) 
+			RemoveItem('bakingsoda', 1 ) 
+			AddItem('heroincutstagetwo', 1) 
+			Notifys(Lang.Heroin.cutheroin, "success")	
+			Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Cut Heroin Tier 2 With a distance of ' .. dist(source, playerPed, Config.cutheroinone[num]['loc']) .. ' vectors', 'heroin')
 		elseif rawh3 then
-			if not GetRecipe(src, 'heroin', 'cutheroin', 'tier3') then return end
-			Log(GetName(src) .. ' Cut Heroin Tier 3 With a distance of ' .. dist(source, Config.cutheroinone[num]['loc']) .. ' vectors', 'heroin')
+			RemoveItem('heroinstagethree', 1 ) 
+			RemoveItem('bakingsoda', 1 ) 
+			AddItem('heroincutstagethree', 1) 
+			Notifys(Lang.Heroin.cutheroin, "success")
+			Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname ..  ' Cut Heroin Tier 3 With a distance of ' .. dist(source, playerPed, Config.cutheroinone[num]['loc']) .. ' vectors', 'heroin')
 		else
-			Notifys(src, Lang.Heroin.noheroin, "error")
+			Notifys(Lang.Heroin.noheroin, "error")
 		end
 	else
-		if not GetRecipe(src, 'heroin', 'cutheroin', 'tier1') then return end
-		Log(GetName(src) ..' Cut Heroin With a distance of ' .. dist(source, Config.cutheroinone[num]['loc']) .. ' vectors', 'heroin')
+		if RemoveItem('heroin', 1 ) then
+			RemoveItem('bakingsoda', 1 )
+			AddItem('heroincut',1)
+			Notifys(Lang.Heroin.cutheroin, "success")
+			Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Cut Heroin With a distance of ' .. dist(source, playerPed, Config.cutheroinone[num]['loc']) .. ' vectors', 'heroin')
+		else
+			Notifys(Lang.Heroin.noheroin, "error")
+		end
 	end
 end)
 
 RegisterServerEvent('md-drugs:server:getheroinlabkit', function()
 	local src = source
 	local Player = QBCore.Functions.GetPlayer(src)
+	local playerPed = GetPlayerPed(source)
 
-	if CheckDist(source, vector3(Config.buyheroinlabkit.x,Config.buyheroinlabkit.y,Config.buyheroinlabkit.z)) then return end
+	if CheckDist(source, playerPed, vector3(Config.buyheroinlabkit.x,Config.buyheroinlabkit.y,Config.buyheroinlabkit.z)) then return end
 	if Player.Functions.RemoveMoney('cash', Config.heroinlabkitprice) then
-		AddItem(src, 'heroinlabkit', 1)
-		Log(GetName(src) ..' Bought A Heroin lab Kit ' .. dist(source, vector3(Config.buyheroinlabkit.x,Config.buyheroinlabkit.y,Config.buyheroinlabkit.z)) .. ' vectors', 'heroin')
+		AddItem('heroinlabkit', 1)
+		Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Bought A Heroin lab Kit ' .. dist(source, playerPed, vector3(Config.buyheroinlabkit.x,Config.buyheroinlabkit.y,Config.buyheroinlabkit.z)) .. ' vectors', 'heroin')
 	else
-		Notifys(src, 'You Need '.. Config.heroinlabkitprice .. ' In Cash For This', 'error')
+		Notifys('You Need '.. Config.heroinlabkitprice .. ' In Cash For This', 'error')
 	end
 end)
 
 RegisterServerEvent('md-drugs:server:getheroinlabkitback', function()
 local src = source
 local Player = QBCore.Functions.GetPlayer(src)
-	if AddItem(src, "heroinlabkit", 1) then
-		Log(GetName(src) ..' Picked Up Their Heroin Lab Kit Back At ' .. GetCoords(src) .. '!', 'heroin')
+local playerPed = GetPlayerPed(source)
+	if Player.Functions.AddItem("heroinlabkit", 1) then
+		Notifys('You Got Your Lab Kit Back', 'Success')
+		Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Picked Up Their Heroin Lab Kit Back At ' .. GetEntityCoords(playerPed) .. '!', 'heroin')
 	end
 end)
 
 QBCore.Functions.CreateUseableItem('heroinlabkit', function(source, item)
 local src = source
 local Player = QBCore.Functions.GetPlayer(src)
-	if not Itemcheck(source, 'heroinlabkit', 1) then return end
+local playerPed = GetPlayerPed(src)
+	if not Itemcheck(Player, 'heroinlabkit', 1, 'true') then return end
 	if TriggerClientEvent("md-drugs:client:setheroinlabkit", src) then
-		RemoveItem(src, "heroinlabkit", 1)
-		Log(GetName(src) ..' Placed Their Heroin Lab Kit Back At ' .. GetCoords(src) .. '!', 'heroin')
+		Player.Functions.RemoveItem("heroinlabkit", 1)
+		Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Placed Their Heroin Lab Kit Back At ' .. GetEntityCoords(playerPed) .. '!', 'heroin')
 	end
 end)
 
@@ -129,26 +166,41 @@ end)
 RegisterServerEvent('md-drugs:server:heatliquidheroin', function()
 local src = source
 local Player = QBCore.Functions.GetPlayer(src)
-	if not Itemcheck(source, 'emptyvial', 1) then return end
+	if not Itemcheck(Player, 'emptyvial', 1, 'true') then return end
 	if Config.TierSystem then
 		local cuth = Player.Functions.GetItemByName('heroincut')
 		local cuth2 = Player.Functions.GetItemByName('heroincutstagetwo')
 		local cuth3 = Player.Functions.GetItemByName('heroincutstagethree')
 		if cuth then
-			if not GetRecipe(src, 'heroin', 'fillvial', 'tier1') then return end
-			Log(GetName(src) ..' Made A Vial Of Heroin', 'heroin')
+			RemoveItem('heroincut', 1) 
+			RemoveItem('emptyvial', 1) 
+			AddItem('heroinvial', 1)
+			Notifys(Lang.Heroin.vial, "success")
+			Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Made A Vial Of Heroin', 'heroin')
 		elseif cuth2 then
-			if not GetRecipe(src, 'heroin', 'fillvial', 'tier2') then return end
-			Log(GetName(src) ..' Made A Vial Of Heroin Tier 2', 'heroin')
+			RemoveItem('heroincutstagetwo', 1) 
+			RemoveItem('emptyvial', 1) 
+			AddItem('heroinvialstagetwo', 1)
+			Notifys(Lang.Heroin.vial, "success")
+			Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Made A Vial Of Heroin Tier 2', 'heroin')
 		elseif cuth3 then
-			if not GetRecipe(src, 'heroin', 'fillvial', 'tier3') then return end
-			Log(GetName(src) ..' Made A Vial Of Heroin Tier 3', 'heroin')
+			RemoveItem('heroincutstagethree', 1) 
+			RemoveItem('emptyvial', 1) 
+			AddItem('heroinvialstagethree', 1)
+			Notifys(Lang.Heroin.vial, "success")
+			Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Made A Vial Of Heroin Tier 3', 'heroin')
 		else
 			Notifys(Lang.Heroin.novial, "error")
 		end
 	else
-		if not GetRecipe(src, 'heroin', 'fillvial', 'tier1') then return end
-		Log(GetName(src) ..' Made A Vial Of Heroin', 'heroin')
+		if RemoveItem('heroincut', 1) then
+			RemoveItem('emptyvial', 1) 
+			AddItem('heroinvial', 1)
+			Notifys(Lang.Heroin.vial, "success")
+			Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Made A Vial Of Heroin', 'heroin')
+		else
+			Notifys(Lang.Heroin.novial, "error")
+		end
 	end
 end)
 
@@ -158,16 +210,16 @@ local Player = QBCore.Functions.GetPlayer(src)
 local cuth = Player.Functions.GetItemByName('heroincut')
 local cuth2 = Player.Functions.GetItemByName('heroincutstagetwo')
 local cuth3 = Player.Functions.GetItemByName('heroincutstagethree')
-Log(GetName(src) ..' Sucks And Burned Their Heroin', 'heroin')
+Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Sucks And Burned Their Heroin', 'heroin')
 	if cuth then
-		RemoveItem(src, 'heroincut', 1) 
-		Notifys(src,Lang.Heroin.fail, "error")
+		RemoveItem('heroincut', 1) 
+		Notifys(Lang.Heroin.fail, "error")
 	elseif cuth2 then
-		RemoveItem(src, 'heroincutstagetwo', 1) 
-		Notifys(src,Lang.Heroin.fail, "error")
+		RemoveItem('heroincutstagetwo', 1) 
+		Notifys(Lang.Heroin.fail, "error")
 	elseif cuth3 then
-		RemoveItem(src, 'heroincutstagethree', 1)
-		Notifys(src,Lang.Heroin.fail, "error")
+		RemoveItem('heroincutstagethree', 1)
+		Notifys(Lang.Heroin.fail, "error")
 	end
 end)
 
@@ -175,31 +227,47 @@ end)
 RegisterServerEvent('md-drugs:server:fillneedle', function(num)
 	local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-	if CheckDist(source, Config.fillneedle[num]['loc']) then return end
-	if not Itemcheck(src, 'needle', 1) then return end
+	local playerPed = GetPlayerPed(source)
+	if CheckDist(source, playerPed, Config.fillneedle[num]['loc']) then return end
+	if not Itemcheck(Player, 'needle', 1, 'true') then return end
 	if Config.TierSystem then
-		local heroin = getRep(src, 'heroin')
+		local heroin = Player.PlayerData.metadata['heroin']
 		local vh = Player.Functions.GetItemByName('heroinvial')
 		local vh2 = Player.Functions.GetItemByName('heroinvialstagetwo')
 		local vh3 = Player.Functions.GetItemByName('heroinvialstagethree')
 		if vh then
-			if not GetRecipe(src, 'heroin', 'fillneedle', 'tier1') then return end
-			AddRep(src, 'heroin')
-			Log(GetName(src) ..' Filled A Needle Of Heroin And Now Has A Rep Of ' .. heroin + 1 .. '!' , 'heroin')
+			RemoveItem('heroinvial', 1 ) 
+			RemoveItem('needle', 1) 
+			AddItem('heroin_ready', 1) 
+			Player.Functions.SetMetaData('heroin',  (heroin + 1))
+			Notifys(Lang.Heroin.fill, "success")
+			Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Filled A Needle Of Heroin And Now Has A Rep Of ' .. heroin + 1 .. '!' , 'heroin')
 		elseif vh2 then
-			if not GetRecipe(src, 'heroin', 'fillneedle', 'tier2') then return end
-			AddRep(src, 'heroin')
-			Log(GetName(src) ..' Filled A Needle Of Heroin Tier 2 And Now Has A Rep Of ' .. heroin + 1 .. '!' , 'heroin')
+			RemoveItem('heroinvialstagetwo', 1 ) 
+			RemoveItem('needle', 1) 
+			AddItem('heroin_readystagetwo', 1) 
+			Player.Functions.SetMetaData('heroin',  (heroin + 1))
+			Notifys(Lang.Heroin.fill, "success")
+			Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Filled A Needle Of Heroin Tier 2 And Now Has A Rep Of ' .. heroin + 1 .. '!' , 'heroin')
 		elseif vh3 then
-			if not GetRecipe(src, 'heroin', 'fillneedle', 'tier3') then return end
-			AddRep(src, 'heroin')
-			Log(GetName(src) ..' Filled A Needle Of Heroin Tier 3 And Now Has A Rep Of ' .. heroin + 1  .. '!' , 'heroin')
+			RemoveItem('heroinvialstagethree', 1 ) 
+			RemoveItem('needle', 1) 
+			AddItem('heroin_readystagethree', 1) 
+			Player.Functions.SetMetaData('heroin',  (heroin + 1))
+			Notifys(Lang.Heroin.fill, "success")
+			Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Filled A Needle Of Heroin Tier 3 And Now Has A Rep Of ' .. heroin + 1  .. '!' , 'heroin')
 		else
-			Notifys(src,Lang.Heroin.nofill, "error")
+			Notifys(Lang.Heroin.nofill, "error")
 		end
 	else
-		if not GetRecipe(src, 'heroin', 'fillneedle', 'tier1') then return end
-		Log(GetName(src) ..' Filled A Needle Of Heroin!' , 'heroin')
+		if RemoveItem('heroinvial', 1 ) then
+		 	RemoveItem('needle', 1)
+			AddItem('heroin_ready', 1)
+			Notifys(Lang.Heroin.fill, "success")
+			Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Filled A Needle Of Heroin!' , 'heroin')
+		else
+			Notifys(Lang.Heroin.nofill, "error")
+		end
 	end
 end)
 
@@ -208,17 +276,17 @@ end)
 RegisterServerEvent('md-drugs:server:failheroin', function()
 	local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-	Log(GetName(src) ..' Sucks And Burned Their Heroin', 'heroin')
+	Log(Player.PlayerData.charinfo.firstname .. ' ' ..  Player.PlayerData.charinfo.lastname .. ' Sucks And Burned Their Heroin', 'heroin')
 	if Config.TierSystem then
 		local vh = Player.Functions.GetItemByName('heroinvial')
 		local vh2 = Player.Functions.GetItemByName('heroinvialstagetwo')
 		local vh3 = Player.Functions.GetItemByName('heroinvialstagethree')
-		if vh then RemoveItem(src, 'heroinvialstagethree', 1 ) 
-		elseif vh2 then RemoveItem(src, 'heroinvialstagetwo', 1) 
-		elseif vh3 then RemoveItem(src, 'heroinvial', 1)
+		if vh then RemoveItem('heroinvialstagethree', 1 ) 
+		elseif vh2 then RemoveItem('heroinvialstagetwo', 1) 
+		elseif vh3 then RemoveItem('heroinvial', 1)
 		end
 	else
-		RemoveItem(src, 'heroinvial', 1)
+		RemoveItem('heroinvial', 1)
 	end
 end)
 

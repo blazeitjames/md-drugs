@@ -4,9 +4,9 @@ QBConfig = {}
 ------------ and changed the range a ped will walk up to you to be a bigger radius. 
 
 QBConfig.MinimumDrugSalePolice = 0
-QBConfig.MarkedBills = true -- if false on both options below then it auto converts selling to give cash
-QBConfig.CustomDirtyMoney = false
-QBConfig.CustomDirtyMoneyitem = ''
+QBConfig.MarkedBills = false -- if false on both options below then it auto converts selling to give cash
+QBConfig.CustomDirtyMoney = true
+QBConfig.CustomDirtyMoneyitem = 'black_money'
 
 QBConfig.DrugsPrice = {
     -- base qb
@@ -22,7 +22,7 @@ QBConfig.DrugsPrice = {
     ["cokebaggystagetwo"] =         {min = 18, max = 40},
 	["cokebaggystagethree"] =       {min = 18, max = 40},
     -- heroin 
-	["heroin_ready"] =              {min = 18, max = 40},
+	["heroin_ready"] =              {min = 30, max = 65},
 	["heroin_readystagetwo"] =      {min = 18, max = 40},
 	["heroin_readystagethree"] =    {min = 18, max = 40},
     -- crack
@@ -140,6 +140,9 @@ QBConfig.DrugsPrice = {
     ["cupofdextro"] =                 {min = 18, max = 40},
 }
 
+	Debug = false -- true / false - Currently prints the vector3 and label of locations when requesting a delivery
+    NearbyDeliveries = false -- true / false - Do you want deliveries to be within a certain amount of units?
+    DeliveryWithin = 2000 -- int (Default 2000) - How many units do you want the delivery location to be within from the player when making a delivery request?
     QBConfig.Dealers = {}
 
 
@@ -168,8 +171,8 @@ QBConfig.WrongAmountFee = 2 -- divide the payout by this value for wrong deliver
 QBConfig.OverdueDeliveryFee = 4 -- divide the payout by this value for overdue delivery
 
 QBConfig.DeliveryItems = {
-    {    item = "weed_brick",    minrep = 0,    payout = {min = 10, max = 50}},
-    {    item = "coke_brick",    minrep = 0,    payout = {min = 10, max = 50}},
+   [1] = {    ["item"] = "weed_brick",    ["minrep"] = 0,    ['payout'] = 1000},
+   [2] = {    ["item"] = "coke_brick",    ["minrep"] = 0,    ['payout'] = 1000},
 }
 
 QBConfig.DeliveryLocations = {

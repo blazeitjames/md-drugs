@@ -145,8 +145,7 @@ then in prop emotes do
     }
 ```
 	
-- **STEP 6** 
-Run SQL
+	
 	
 -- **OPTIONAL STEPS**
 

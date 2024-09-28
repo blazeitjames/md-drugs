@@ -75,7 +75,7 @@ Lang.Lean = {
 
 Lang.lsd = {
     steallys = 'Stealing Lysergic Acid',
-    stealdie = 'Stealing Lysergic Acid',
+    stealdie = 'Stealing Diethylamide',
     tableout = 'You Already Have A Table Out',
     tablepack = 'Packing Table Up',
     heat = 'Heating Up Liquids',
